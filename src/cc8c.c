@@ -1,36 +1,37 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 void init(unsigned char* RAMptr);
 void fetch ();
 
 // Memory
-unsigned char RAM[4096] = {0}; // RAM is 8bitsx4Kbits
+uint8_t RAM[4096] = {0}; // RAM is 8bitsx4Kbits
 
-unsigned short I = 0;
-unsigned char V[16] = {0};
+uint16_t I = 0;
+uint8_t V[16] = {0};
 
-unsigned short pc = 0;
-unsigned int opcode = 0x0000;
+uint16_t pc = 0;
+uint32_t opcode = 0x0000;
 
-unsigned short stack[16] = {0};
-unsigned char stackPtr = 0;
+uint16_t stack[16] = {0};
+uint8_t stackPtr = 0;
 
 // Timers
-unsigned char delayTimer = 0;
-unsigned char soundTimer = 0;
+uint8_t delayTimer = 0;
+uint8_t soundTimer = 0;
 
 // Display
 bool display[64][32] = {0};
 
 // Decode
-unsigned char MSB = 0;
-unsigned char x = 0;
-unsigned char y = 0;
-unsigned char N = 0;
-unsigned char NN = 0x00;
-unsigned short NNN = 0x000;
+uint8_t MSB = 0;
+uint8_t x = 0;
+uint8_t y = 0;
+uint8_t N = 0;
+uint8_t NN = 0x00;
+uint16_t NNN = 0x000;
 
 int main()
 {
@@ -84,6 +85,44 @@ int main()
         case 0xA:
             I = NNN;
             break;
+        case 0xD:
+            // TODO: display
+            uint8_t xCoord = V[x] & 63;
+            uint8_t yCoord = V[y] & 31;
+            V[0xF] = 0;
+
+            uint8_t currRow;
+            bool currBit;
+
+            for (int i = 0; i < N; i++) {
+                currRow = RAM[I + i*8];
+                for (int j = 0; j < 8; j++) {
+                    currBit = currRow >> j & 0x1;
+                    if (currBit && display[xCoord][yCoord]) {
+                        display[xCoord][yCoord] = 0;
+                        V[0xF] = 1;
+                    }
+
+                    if (currBit && !display[xCoord][yCoord]) {
+                        display[xCoord][yCoord] = 1;
+                    }
+                    
+                    if (xCoord == 63) {
+                        break;
+                    }
+                    
+                    xCoord++;
+                }
+
+                if (yCoord == 31) {
+                    break;
+                }
+
+                yCoord++;
+            }
+
+            
+
         default:
             printf("Not A");
             break;
