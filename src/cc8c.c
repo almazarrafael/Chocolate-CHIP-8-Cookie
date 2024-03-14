@@ -4,11 +4,16 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <SDL2/SDL.h>
+#include <signal.h>
 
 void init (unsigned char* RAMptr);
 void fetch (void);
 void draw (SDL_Renderer *renderer, bool display[64][32]);
 void load_rom (void);
+void int_handler (int sig);
+
+bool keepRunning = true;
+bool increment = true;
 
 // Memory
 uint8_t RAM[4096] = {0}; // RAM is 8bitsx4Kbits
@@ -39,6 +44,7 @@ uint16_t NNN = 0x000;
 
 int main()
 {
+    signal(SIGINT, int_handler);
     init(&RAM[0]);
     load_rom();
 
@@ -46,12 +52,12 @@ int main()
     SDL_Window *window;
 
     SDL_Init(SDL_INIT_VIDEO);
-    SDL_CreateWindowAndRenderer(64, 32, 0, &window, &renderer);
+    SDL_CreateWindowAndRenderer(640, 320, 0, &window, &renderer);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
-    while (1) {
+    while (keepRunning) {
         
         //Fetch
         fetch();
@@ -83,6 +89,7 @@ int main()
                 break;
             case 0x1: // Jump
                 pc = NNN;
+                increment = false;
                 break;
             case 0x2:
                 stack[stackPtr] = pc;
@@ -114,7 +121,8 @@ int main()
                     currRow = RAM[I + i];
                     xCoord = V[x] & 63;
                     for (int j = 0; j < 8; j++) {
-                        currBit = (currRow >> 8-j) & 0x1;
+                        //printf("i = %d\n", j);
+                        currBit = (currRow >> 7-j) & 0x1;
                         if (currBit && display[xCoord][yCoord]) {
                             display[xCoord][yCoord] = 0;
                             V[0xF] = 1;
@@ -140,7 +148,7 @@ int main()
                 printf("Not A");
                 break;
         }
-        SDL_Delay(1000/60.0);
+        SDL_Delay(1000/6.0);
     }
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
@@ -150,7 +158,13 @@ int main()
 
 void fetch (void) {
     opcode = (RAM[pc] << 8) | RAM[pc+1];
-    pc += 2;
+    if (increment) {
+        pc += 2;
+    }
+    else {
+        increment = true;
+    }
+    
 }
 
 void init(unsigned char* RAMptr) {
@@ -177,9 +191,17 @@ void init(unsigned char* RAMptr) {
 }
 
 void draw(SDL_Renderer *renderer, bool display[64][32]) {
-    for (int i = 0; i < 64; i++) {
-        for (int j = 0; j < 32; j++) {
-            if (display[i][j]) {
+
+    bool upscaledDisplay[640][320];
+    for (int i = 0; i < 640; i++) {
+        for (int j = 0; j < 320; j++) {
+            upscaledDisplay[i][j] = display[i/10][j/10];
+        }
+    }
+
+    for (int i = 0; i < 640; i++) {
+        for (int j = 0; j < 320; j++) {
+            if (upscaledDisplay[i][j]) {
                 SDL_RenderDrawPoint(renderer, i, j);
             }
         }
@@ -231,4 +253,9 @@ void load_rom (void) {
     free(buffer);
 
     return;
+}
+
+void int_handler (int sig) {
+    printf("Exiting program..\n");
+    keepRunning = false;
 }
