@@ -53,9 +53,9 @@ int main()
 
     SDL_Init(SDL_INIT_VIDEO);
     SDL_CreateWindowAndRenderer(640, 320, 0, &window, &renderer);
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+    SDL_SetRenderDrawColor(renderer, 182, 152, 109, 255);
     SDL_RenderClear(renderer);
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_SetRenderDrawColor(renderer, 123, 61, 17, 255);
 
     while (keepRunning) {
         
