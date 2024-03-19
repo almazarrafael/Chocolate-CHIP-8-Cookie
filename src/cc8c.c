@@ -1,20 +1,4 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <SDL2/SDL.h>
-#include <signal.h>
-#include <time.h>
-
-#define UPSCALE_MULTIPLIER (15)
-#define DISPLAY_ON_R (123)
-#define DISPLAY_ON_G (61)
-#define DISPLAY_ON_B (17)
-#define DISPLAY_OFF_R (182)
-#define DISPLAY_OFF_G (152)
-#define DISPLAY_OFF_B (109)
-#define INSTRUCTIONS_PER_SECOND (700)
+#include "cc8c.h"
 
 void init (uint8_t *RAMptr);
 void fetch (void);
@@ -110,12 +94,14 @@ int main()
         
         //Fetch
         fetch();
-        //printf("[0x%.3X]: 0x%.4X\n", pc, opcode);
+        printf("[0x%.3X]: 0x%.4X\n", pc, opcode);
 
+        /*
         for (int i = 0; i < 0xF; i++) {
             printf("%d ", state[keypad[i]]);
         }
         printf("\n");
+        */
 
         // Decode
         MSB = (opcode & 0xF000) >> 12;
@@ -417,11 +403,11 @@ void load_rom (void) {
     unsigned long fileLen;
 
     // TODO: Pass rom path as an arg
-    //file = fopen("../roms/IBM_Logo.ch8", "rb");
+    file = fopen("../roms/IBM_Logo.ch8", "rb");
     //file = fopen("../roms/3-corax+.ch8", "rb");
     //file = fopen("../roms/octojam1title.ch8", "rb");
     //file = fopen("../roms/RPS.ch8", "rb");
-    file = fopen("../roms/4-flags.ch8", "rb");
+    //file = fopen("../roms/4-flags.ch8", "rb");
     //file = fopen("../roms/6-keypad.ch8", "rb");
 
     if (!file) {
