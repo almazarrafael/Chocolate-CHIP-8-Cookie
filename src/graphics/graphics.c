@@ -1,4 +1,4 @@
-#include "cc8c.h"
+#include "../cc8c.h"
 
 void graphics_init (SDL_Renderer *renderer, SDL_Window *window) {
     SDL_Init(SDL_INIT_VIDEO);

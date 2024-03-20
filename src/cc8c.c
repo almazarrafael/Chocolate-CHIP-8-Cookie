@@ -1,6 +1,6 @@
 #include"cc8c.h"
-#include "chip8_core.h"
-#include "graphics.h"
+#include "chip8_core/chip8_core.h"
+#include "graphics/graphics.h"
 
 void int_handler (int sig);
 void draw (SDL_Renderer *renderer, bool display[64][32]);

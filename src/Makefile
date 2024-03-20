@@ -7,8 +7,8 @@ default: all
 
 all: cc8c
 
-cc8c: main.c
-	$(CC) -o cc8c main.c graphics.c chip8_core.c $(CFLAGS)
+cc8c: cc8c.c
+	$(CC) -o cc8c cc8c.c graphics/graphics.c chip8_core/chip8_core.c $(CFLAGS)
 
 clean veryclean:
 	$(RM) cc8c
