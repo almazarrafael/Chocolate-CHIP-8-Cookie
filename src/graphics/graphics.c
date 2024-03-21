@@ -13,7 +13,6 @@ void graphics_init (SDL_Renderer *renderer, SDL_Window *window) {
 
 void graphics_update (SDL_Renderer *renderer) {
     SDL_PumpEvents();
-    SDL_RenderPresent(renderer);
     SDL_Delay(1000/(INSTRUCTIONS_PER_SECOND * 1.0));
     return;
 }

@@ -23,4 +23,4 @@ Display constants
 /*
 Program execution speed
 */
-#define INSTRUCTIONS_PER_SECOND (7)
+#define INSTRUCTIONS_PER_SECOND (700)
