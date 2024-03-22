@@ -22,7 +22,7 @@ int main (void) {
 
     chip8_core *chip8_core = malloc(sizeof(struct chip8_core));
     init(chip8_core);
-    load_rom(chip8_core, "../roms/1-chip8-logo.ch8");
+    load_rom(chip8_core, "../roms/6-keypad.ch8");
 
     while (keepRunning) {
 

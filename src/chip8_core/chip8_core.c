@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "../cc8c.h"
 
 typedef struct chip8_core {
     uint8_t RAM[4096];
@@ -18,7 +19,10 @@ typedef struct chip8_core {
     bool increment;
     bool skip;
     bool displayUpdated;
+    uint32_t elapsedCycles;
 } chip8_core;
+
+void update_timers (chip8_core *chip8_core);
 
 void init(chip8_core *chip8_core) {
 
@@ -78,14 +82,15 @@ void init(chip8_core *chip8_core) {
 }
 
 void fetch (chip8_core *chip8_core) {
-    chip8_core->opcode = (chip8_core->RAM[chip8_core->pc] << 8) | chip8_core->RAM[chip8_core->pc+1];
-    
-    printf("[0x%.2X] - 0x%.4X - ", chip8_core->pc, chip8_core->opcode);
 
     if (chip8_core->skip) {
         chip8_core->pc += 2;
         chip8_core->skip = false;
     }
+
+    chip8_core->opcode = (chip8_core->RAM[chip8_core->pc] << 8) | chip8_core->RAM[chip8_core->pc+1];
+    
+    printf("[0x%.2X] - 0x%.4X - ", chip8_core->pc, chip8_core->opcode);
 
     if (chip8_core->increment) {
         chip8_core->pc += 2;
@@ -360,6 +365,7 @@ void decode_and_execute (chip8_core *chip8_core, bool keypad[16]) {
             exit(0);
             break;
     }
+    update_timers(chip8_core);
     printf("\n");
 }
 
@@ -410,4 +416,21 @@ bool get_displayUpdated (chip8_core *chip8_core) {
 void reset_displayUpdated (chip8_core *chip8_core) {
     chip8_core->displayUpdated = false;
     return;
+}
+
+void update_timers (chip8_core *chip8_core) {
+
+    if (chip8_core->elapsedCycles > (INSTRUCTIONS_PER_SECOND/60.0)) {
+        if (chip8_core->delayTimer != 0) {
+            chip8_core->delayTimer--;
+        }
+        if (chip8_core->soundTimer != 0){ 
+            chip8_core->soundTimer--;
+        }
+        chip8_core->elapsedCycles = 0;
+    }
+    else {
+        chip8_core->elapsedCycles++;
+    }
+
 }
