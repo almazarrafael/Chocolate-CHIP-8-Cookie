@@ -305,13 +305,13 @@ void decode_and_execute (chip8_core *chip8_core, bool keypad[16]) {
         case 0xE:
             if (NN == 0x9E) {
                 printf("Skip if key %.1X is pressed", chip8_core->V[x]);
-                if (keypad[chip8_core->V[x] % 0xF]) {
+                if (keypad[chip8_core->V[x]]) {
                     chip8_core->skip = true;
                 }
             }
             else if (NN == 0xA1) {
                 printf("Skip if key %.1X is not pressed", chip8_core->V[x]);
-                if (!keypad[chip8_core->V[x] % 0xF]) {
+                if (!keypad[chip8_core->V[x]]) {
                     chip8_core->skip = true;
                 }
             }
@@ -336,11 +336,13 @@ void decode_and_execute (chip8_core *chip8_core, bool keypad[16]) {
             }
             else if (NN == 0x0A) {
                 printf("Wait for keypress");
-                for (int i = 0; i < 0xF; i++) {
-                    if (keypad[i]) {
-                        chip8_core->pc -= 2;
-                        break;
-                    }
+                bool anyKeyPressed = false;
+                for (int i = 0; i <= 0xF; i++) {
+                    anyKeyPressed |= keypad[i];
+                }
+                
+                if (!anyKeyPressed) {
+                    chip8_core->pc -= 2;
                 }
             }
             else if (NN == 0x29) {
