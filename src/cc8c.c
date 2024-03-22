@@ -2,7 +2,7 @@
 #include "chip8_core/chip8_core.h"
 #include "graphics/graphics.h"
 
-#define SINGLE_STEPPING true
+#define SINGLE_STEPPING false
 
 void int_handler (int sig);
 void draw (SDL_Renderer *renderer, bool display[64][32]);
@@ -44,7 +44,7 @@ int main (void) {
                     prevKeyPState = false;
                     break;
                 }
-                if (!keepRunning) exit(1);
+                if (!keepRunning) break;
                 prevKeyPState = state[SDL_SCANCODE_P];
                 SDL_PumpEvents();
             }
