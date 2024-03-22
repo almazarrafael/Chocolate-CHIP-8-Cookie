@@ -83,21 +83,9 @@ void init(chip8_core *chip8_core) {
 
 void fetch (chip8_core *chip8_core) {
 
-    if (chip8_core->skip) {
-        chip8_core->pc += 2;
-        chip8_core->skip = false;
-    }
-
     chip8_core->opcode = (chip8_core->RAM[chip8_core->pc] << 8) | chip8_core->RAM[chip8_core->pc+1];
     
     printf("[0x%.2X] - 0x%.4X - ", chip8_core->pc, chip8_core->opcode);
-
-    if (chip8_core->increment) {
-        chip8_core->pc += 2;
-    }
-    else {
-        chip8_core->increment = true;
-    } 
     return;
 }
 
@@ -214,16 +202,16 @@ void decode_and_execute (chip8_core *chip8_core, bool keypad[16]) {
                     }
                     break;
                 case 0x5:
-                    printf("Subtract V[x] with V[y] (V[%.2X] = %.2X - 0x%.2X)", x, chip8_core->V[x],chip8_core->V[y]);
-                    bool borrow = 0;
-                    if (chip8_core->V[x] > chip8_core->V[y]) {
-                        borrow = 0;
+                    printf("Subtract V[x] with V[y] (V[%.2X] = %.2X - 0x%.2X)", x, chip8_core->V[x], chip8_core->V[y]);
+                    bool borrowXY = 0;
+                    if (chip8_core->V[x] >= chip8_core->V[y]) {
+                        borrowXY = 1;
                     }
                     else {
-                        borrow = 1;
+                        borrowXY = 0;
                     }
                     chip8_core->V[x] -= chip8_core->V[y];
-                    chip8_core->V[0xF] = borrow;
+                    chip8_core->V[0xF] = borrowXY;
                     break;
                 case 0x6:
                     printf("Set V[x] to V[y] and right shift by 1 (V[%.2X] = %.2X >> 1)", x,chip8_core->V[y]);
@@ -232,8 +220,15 @@ void decode_and_execute (chip8_core *chip8_core, bool keypad[16]) {
                     break;
                 case 0x7:
                     printf("Subtract V[y] with V[x] (V[%.2X] = %.2X - 0x%.2X)", x, chip8_core->V[y],chip8_core->V[x]);
+                    bool borrowYX = 0;
+                    if (chip8_core->V[y] >= chip8_core->V[x]) {
+                        borrowYX = 1;
+                    }
+                    else {
+                        borrowYX = 0;
+                    }
                     chip8_core->V[x] = chip8_core->V[y] - chip8_core->V[x];
-                    chip8_core->V[0xF] = 0;
+                    chip8_core->V[0xF] = borrowYX;
                     break;
                 case 0xE:
                     printf("Set V[x] to V[y] and left shift by 1 (V[%.2X] = %.2X << 1)", x,chip8_core->V[y]);
@@ -377,8 +372,21 @@ void decode_and_execute (chip8_core *chip8_core, bool keypad[16]) {
             exit(0);
             break;
     }
+
+    if (chip8_core->skip) {
+        chip8_core->pc += 2;
+        chip8_core->skip = false;
+    }
+
+    if (chip8_core->increment) {
+        chip8_core->pc += 2;
+    }
+    else {
+        chip8_core->increment = true;
+    } 
     update_timers(chip8_core);
     printf("\n");
+    return;
 }
 
 void load_rom (chip8_core *chip8_core, char *romPath) {
