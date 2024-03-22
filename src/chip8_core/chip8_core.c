@@ -215,8 +215,9 @@ void decode_and_execute (chip8_core *chip8_core, bool keypad[16]) {
                     break;
                 case 0x6:
                     printf("Set V[x] to V[y] and right shift by 1 (V[%.2X] = %.2X >> 1)", x,chip8_core->V[y]);
-                    chip8_core->V[0xF] = chip8_core->V[y] & 0x1;
+                    bool rightShiftedOutBit = chip8_core->V[y] & 0x1;
                     chip8_core->V[x] = chip8_core->V[y] >> 1;
+                    chip8_core->V[0xF] = rightShiftedOutBit;
                     break;
                 case 0x7:
                     printf("Subtract V[y] with V[x] (V[%.2X] = %.2X - 0x%.2X)", x, chip8_core->V[y],chip8_core->V[x]);
@@ -232,8 +233,9 @@ void decode_and_execute (chip8_core *chip8_core, bool keypad[16]) {
                     break;
                 case 0xE:
                     printf("Set V[x] to V[y] and left shift by 1 (V[%.2X] = %.2X << 1)", x,chip8_core->V[y]);
-                    chip8_core->V[0xF] = chip8_core->V[y] >> 7 & 0x1;
+                    bool leftShiftedOutBit = chip8_core->V[y] >> 7 & 0x1;
                     chip8_core->V[x] = chip8_core->V[y] << 1;
+                    chip8_core->V[0xF] = leftShiftedOutBit;
                     break;
                 default:
                     printf("ERROR: Invalid opcode %d\n", chip8_core->opcode);
