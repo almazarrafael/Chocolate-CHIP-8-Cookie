@@ -2,11 +2,14 @@
 #include "chip8_core/chip8_core.h"
 #include "graphics/graphics.h"
 
+#define SINGLE_STEPPING true
+
 void int_handler (int sig);
 void draw (SDL_Renderer *renderer, bool display[64][32]);
 
 bool keepRunning = true;
 bool keypad[16] = {0};
+bool prevKeyPState = false;
 
 int main (void) {
 
@@ -22,7 +25,7 @@ int main (void) {
 
     chip8_core *chip8_core = malloc(sizeof(struct chip8_core));
     init(chip8_core);
-    load_rom(chip8_core, "../roms/6-keypad.ch8");
+    load_rom(chip8_core, "../roms/4-flags.ch8");
 
     while (keepRunning) {
 
@@ -33,6 +36,18 @@ int main (void) {
         if (get_displayUpdated(chip8_core)) {
             graphics_draw(renderer, chip8_core->display);
             reset_displayUpdated(chip8_core);
+        }
+
+        if (SINGLE_STEPPING) {
+            while (true) {
+                if (prevKeyPState && !state[SDL_SCANCODE_P]) {
+                    prevKeyPState = false;
+                    break;
+                }
+                if (!keepRunning) exit(1);
+                prevKeyPState = state[SDL_SCANCODE_P];
+                SDL_PumpEvents();
+            }
         }
 
         graphics_update(renderer);
