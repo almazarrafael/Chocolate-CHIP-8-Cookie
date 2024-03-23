@@ -76,7 +76,7 @@ void init(chip8_core *chip8_core) {
         0xF0, 0x80, 0xD0, 0x80, 0x80  // F
     };
     memcpy(chip8_core->RAM + 0x50, &fontSet[0], sizeof(fontSet));
-    printf("Status: Font set loaded into RAM.\n");
+    printf("STATUS: CHIP-8 Core initialized.\n");
 
     return;
 }
@@ -401,7 +401,7 @@ void load_rom (chip8_core *chip8_core, char *romPath) {
     file = fopen(romPath, "rb");
 
     if (!file) {
-        printf("ERROR: can't read file.");
+        printf("ERROR: can't read file.\n");
         exit(0);
     }
 
@@ -413,20 +413,19 @@ void load_rom (chip8_core *chip8_core, char *romPath) {
     fread(buffer, fileLen, 1, file);
     fclose(file);
 
-    for (int c=0;c<fileLen;c++) {
-        printf("%.2X", (int)buffer[c]);
+    printf("STATUS: ROM loaded into RAM.\n");
 
-        if (c % 2 == 1)
-        {
+    printf("\n--ROM HEXDUMP BEGIN--\n");
+    for (int c = 0; c < fileLen; c++) {
+        printf("%.2X", (int)buffer[c]);
+        if (c % 2 == 1) {
             printf(" ");
         }
-
-        if (c % 16 == 15)
-        {
+        if (c % 16 == 15) {
             printf("\n");
         }
     }
-    printf("\n");
+    printf("\n--ROM HEXDUMP END--\n\n");
 
     memcpy(chip8_core->RAM+0x200, buffer, fileLen);
     free(buffer);

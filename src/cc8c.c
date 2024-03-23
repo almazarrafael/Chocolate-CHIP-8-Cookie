@@ -2,16 +2,17 @@
 #include "chip8_core/chip8_core.h"
 #include "graphics/graphics.h"
 
-#define SINGLE_STEPPING false
-
 void int_handler (int sig);
-void draw (SDL_Renderer *renderer, bool display[64][32]);
+void arg_handler (int argc, char *argv[]);
 
 bool keepRunning = true;
 bool keypad[16] = {0};
 bool prevKeyPState = false;
+bool singleStepping = false;
 
-int main (void) {
+int main (int argc, char *argv[]) {
+
+    arg_handler(argc, argv);
 
     signal(SIGINT, int_handler);
 
@@ -25,20 +26,13 @@ int main (void) {
 
     chip8_core *chip8_core = malloc(sizeof(struct chip8_core));
     init(chip8_core);
-    load_rom(chip8_core, "../roms/4-flags.ch8");
+    load_rom(chip8_core, argv[1]);
+
+    if (singleStepping) printf("STATUS: Single stepping debug mode. Press 'P' to step through.\n");
 
     while (keepRunning) {
 
-        fetch(chip8_core);
-        get_keypad_states(keypad, state);
-        decode_and_execute(chip8_core, keypad);
-
-        if (get_displayUpdated(chip8_core)) {
-            graphics_draw(renderer, chip8_core->display);
-            reset_displayUpdated(chip8_core);
-        }
-
-        if (SINGLE_STEPPING) {
+        if (singleStepping) {
             while (true) {
                 if (prevKeyPState && !state[SDL_SCANCODE_P]) {
                     prevKeyPState = false;
@@ -50,6 +44,15 @@ int main (void) {
             }
         }
 
+        fetch(chip8_core);
+        get_keypad_states(keypad, state);
+        decode_and_execute(chip8_core, keypad);
+
+        if (get_displayUpdated(chip8_core)) {
+            graphics_draw(renderer, chip8_core->display);
+            reset_displayUpdated(chip8_core);
+        }
+
         graphics_update(renderer);
     }
     graphics_teardown(renderer, window);
@@ -58,4 +61,28 @@ int main (void) {
 void int_handler (int sig) {
     printf("Exiting program..\n");
     keepRunning = false;
+}
+
+void arg_handler (int argc, char *argv[]) {
+    if (argc == 1) {
+        printf("ERROR: Please provide a path to a CHIP-8 ROM file.\n");
+        printf("Usage: ./cc8c \"ROM path\"\n");
+        exit(0);
+    }
+
+    if (argc > 3) {
+        printf("ERROR: Too many arguments provided.\n");
+        exit(0);
+    }
+
+    if (argc == 3) {
+        if (!strcmp(argv[2], "-d")) {
+            singleStepping = true;
+        }
+        else {
+            printf("ERROR: Unknown flag \'%s\'. Use -d for single stepping debug mode.\n", argv[2]);
+            exit(0);
+        }
+    }
+
 }
