@@ -9,6 +9,7 @@ bool keepRunning = true;
 bool keypad[16] = {0};
 bool prevKeyPState = false;
 bool singleStepping = false;
+bool startKeyPressed = false;
 
 int main (int argc, char *argv[]) {
 
@@ -26,7 +27,26 @@ int main (int argc, char *argv[]) {
 
     chip8_core *chip8_core = malloc(sizeof(struct chip8_core));
     init(chip8_core);
-    load_rom(chip8_core, argv[1]);
+    load_rom(chip8_core, "../roms/IBM_Logo.ch8");
+
+    while (!startKeyPressed) {
+        SDL_PumpEvents();
+        fetch(chip8_core);
+        decode_and_execute(chip8_core, keypad);
+        get_keypad_states(keypad, state);
+        if (get_displayUpdated(chip8_core)) {
+            graphics_draw(renderer, chip8_core->display);
+            reset_displayUpdated(chip8_core);
+        }
+        graphics_update(renderer);
+        for (int i = 0; i < 0xF; i++) {
+            startKeyPressed |= keypad[i];
+            printf("%d ", keypad[i]);
+        }
+        printf("\n");
+    }
+    
+    reset(chip8_core, argv[1]);
 
     if (singleStepping) printf("STATUS: Single stepping debug mode. Press 'P' to step through.\n");
 
