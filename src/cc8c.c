@@ -62,7 +62,7 @@ int main (int argc, char *argv[]) {
         graphics_update(renderer);
 
         // Reset button
-        if (state[SDL_SCANCODE_R]) {
+        if (state[SDL_SCANCODE_O]) {
             printf("STATUS: Resetting..");
             reset(chip8_core, argv[1]);
         }
