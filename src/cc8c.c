@@ -4,6 +4,7 @@
 
 void int_handler (int sig);
 void arg_handler (int argc, char *argv[]);
+void splash_screen (SDL_Renderer *renderer, const Uint8 *state);
 
 bool keepRunning = true;
 bool keypad[16] = {0};
@@ -25,28 +26,11 @@ int main (int argc, char *argv[]) {
 
     graphics_init(renderer, window);
 
+    splash_screen(renderer, state);
+    
     chip8_core *chip8_core = malloc(sizeof(struct chip8_core));
     init(chip8_core);
-    load_rom(chip8_core, "../roms/IBM_Logo.ch8");
-
-    while (!startKeyPressed) {
-        SDL_PumpEvents();
-        fetch(chip8_core);
-        decode_and_execute(chip8_core, keypad);
-        get_keypad_states(keypad, state);
-        if (get_displayUpdated(chip8_core)) {
-            graphics_draw(renderer, chip8_core->display);
-            reset_displayUpdated(chip8_core);
-        }
-        graphics_update(renderer);
-        for (int i = 0; i < 0xF; i++) {
-            startKeyPressed |= keypad[i];
-            printf("%d ", keypad[i]);
-        }
-        printf("\n");
-    }
-    
-    reset(chip8_core, argv[1]);
+    load_rom(chip8_core, argv[1]);
 
     if (singleStepping) printf("STATUS: Single stepping debug mode. Press 'P' to step through.\n");
 
@@ -113,4 +97,33 @@ void arg_handler (int argc, char *argv[]) {
         }
     }
 
+}
+
+void splash_screen (SDL_Renderer *renderer, const Uint8 *state) {
+    chip8_core *chip8_core = malloc(sizeof(struct chip8_core));
+    init(chip8_core);
+    // TODO: replace rom with splash screen rom once I make it
+    load_rom(chip8_core, "../roms/IBM_Logo.ch8");
+
+    while (!startKeyPressed) {
+        // Inputs
+        SDL_PumpEvents();
+        get_keypad_states(keypad, state);
+        for (int i = 0; i < 0xF; i++) {
+            startKeyPressed |= keypad[i];
+        }
+
+        // Fetch, decode, execute
+        fetch(chip8_core);
+        decode_and_execute(chip8_core, keypad);
+        
+        // Graphics
+        if (get_displayUpdated(chip8_core)) {
+            graphics_draw(renderer, chip8_core->display);
+            reset_displayUpdated(chip8_core);
+        }
+        graphics_update(renderer);
+    }
+    free(chip8_core);
+    return;
 }
