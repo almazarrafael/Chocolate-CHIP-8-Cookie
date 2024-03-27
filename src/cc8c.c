@@ -32,6 +32,7 @@ int main (int argc, char *argv[]) {
 
     while (keepRunning) {
 
+        // Single stepping debug
         if (singleStepping) {
             while (true) {
                 if (prevKeyPState && !state[SDL_SCANCODE_P]) {
@@ -44,16 +45,23 @@ int main (int argc, char *argv[]) {
             }
         }
 
+        // Fetch, decode, execute
         fetch(chip8_core);
         get_keypad_states(keypad, state);
         decode_and_execute(chip8_core, keypad);
 
+        // Graphics
         if (get_displayUpdated(chip8_core)) {
             graphics_draw(renderer, chip8_core->display);
             reset_displayUpdated(chip8_core);
         }
-
         graphics_update(renderer);
+
+        // Reset button
+        if (state[SDL_SCANCODE_R]) {
+            printf("STATUS: Resetting..");
+            reset(chip8_core, argv[1]);
+        }
     }
     graphics_teardown(renderer, window);
 }

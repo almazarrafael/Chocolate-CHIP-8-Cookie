@@ -459,3 +459,9 @@ void update_timers (chip8_core *chip8_core) {
     }
 
 }
+
+void reset (chip8_core *chip8_core, char* romPath) {
+    init(chip8_core);
+    load_rom(chip8_core, romPath);
+    return;
+}

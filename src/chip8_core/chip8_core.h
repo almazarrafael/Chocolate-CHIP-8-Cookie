@@ -38,4 +38,6 @@ void reset_displayUpdated (chip8_core *chip8_core);
 
 void update_timers (chip8_core *chip8_core);
 
+void reset (chip8_core *chip8_core, char* romPath);
+
 #endif
