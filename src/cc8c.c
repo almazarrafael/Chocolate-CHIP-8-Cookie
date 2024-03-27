@@ -103,7 +103,7 @@ void splash_screen (SDL_Renderer *renderer, const Uint8 *state) {
     chip8_core *chip8_core = malloc(sizeof(struct chip8_core));
     init(chip8_core);
     // TODO: replace rom with splash screen rom once I make it
-    load_rom(chip8_core, "../roms/IBM_Logo.ch8");
+    load_rom(chip8_core, "../roms/splash_screen/splash_screen.ch8");
 
     while (!startKeyPressed) {
         // Inputs
