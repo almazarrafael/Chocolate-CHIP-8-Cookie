@@ -8,6 +8,11 @@
 #include <time.h>
 
 /*
+Debug
+*/
+#define DEBUG false
+
+/*
 Display constants
 */
 #define UPSCALE_MULTIPLIER (10)

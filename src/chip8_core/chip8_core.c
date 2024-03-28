@@ -76,7 +76,7 @@ void init(chip8_core *chip8_core) {
         0xF0, 0x80, 0xD0, 0x80, 0x80  // F
     };
     memcpy(chip8_core->RAM + 0x50, &fontSet[0], sizeof(fontSet));
-    printf("STATUS: CHIP-8 Core initialized.\n");
+    if (DEBUG) printf("STATUS: CHIP-8 Core initialized.\n");
 
     return;
 }
@@ -85,7 +85,7 @@ void fetch (chip8_core *chip8_core) {
 
     chip8_core->opcode = (chip8_core->RAM[chip8_core->pc] << 8) | chip8_core->RAM[chip8_core->pc+1];
     
-    printf("[0x%.2X] - 0x%.4X - ", chip8_core->pc, chip8_core->opcode);
+    if (DEBUG) printf("[0x%.2X] - 0x%.4X - ", chip8_core->pc, chip8_core->opcode);
     return;
 }
 
@@ -104,33 +104,33 @@ void decode_and_execute (chip8_core *chip8_core, bool keypad[16]) {
 
         case 0x0:
             if (chip8_core->opcode == 0x00E0) {
-                printf("Clear screen");
+                if (DEBUG) printf("Clear screen");
                 memset(&chip8_core->display, 0, 64 * 32);
                 chip8_core->displayUpdated = true;
             }
             else if (chip8_core->opcode == 0x00EE) {
-                printf("Returning from subroutine call");
+                if (DEBUG) printf("Returning from subroutine call");
                 chip8_core->stackPtr--;
                 chip8_core->pc = chip8_core->stack[chip8_core->stackPtr];   
             }
             else {
-                printf("ERROR: 0NNN instruction.\n");
+                if (DEBUG) printf("ERROR: 0NNN instruction.\n");
                 exit(0);
             }
             break;
 
         case 0x1:
-            printf("Jump to RAM[0x%.3X]", NNN);
+            if (DEBUG) printf("Jump to RAM[0x%.3X]", NNN);
             chip8_core->pc = NNN;
             chip8_core->increment = false;
             break;
 
         case 0x2:
-            printf("Subroutine call to RAM[0x%.3X]", NNN);
+            if (DEBUG) printf("Subroutine call to RAM[0x%.3X]", NNN);
             chip8_core->stack[chip8_core->stackPtr] = chip8_core->pc;
             chip8_core->pc = NNN;
             if (chip8_core->stackPtr == 15) {
-                printf("ERROR: Stack overflow.\n");
+                if (DEBUG) printf("ERROR: Stack overflow.\n");
                 exit(0);
             }
             chip8_core->increment = false;
@@ -138,60 +138,60 @@ void decode_and_execute (chip8_core *chip8_core, bool keypad[16]) {
             break;
 
         case 0x3:
-            printf("Skip if V[x] == NN (0x%.2X == 0x%.2X)", chip8_core->V[x], NN);
+            if (DEBUG) printf("Skip if V[x] == NN (0x%.2X == 0x%.2X)", chip8_core->V[x], NN);
             if (chip8_core->V[x] == NN) {
                 chip8_core->skip = true;
             }
             break;
 
         case 0x4:
-            printf("Skip if V[x] != NN (0x%.2X != 0x%.2X)", chip8_core->V[x], NN);
+            if (DEBUG) printf("Skip if V[x] != NN (0x%.2X != 0x%.2X)", chip8_core->V[x], NN);
             if (chip8_core->V[x] != NN) {
                 chip8_core->skip = true;
             }
             break;
 
         case 0x5:
-            printf("Skip if V[x] == V[y] (0x%.2X == 0x%.2X)", chip8_core->V[x], chip8_core->V[y]);
+            if (DEBUG) printf("Skip if V[x] == V[y] (0x%.2X == 0x%.2X)", chip8_core->V[x], chip8_core->V[y]);
             if (chip8_core->V[x] == chip8_core->V[y]) {
                 chip8_core->skip = true;
             }
             break;
 
         case 0x6:
-            printf("Set V[x] to NN (V[0x%.1X] = 0x%.2X)", x, NN);
+            if (DEBUG) printf("Set V[x] to NN (V[0x%.1X] = 0x%.2X)", x, NN);
             chip8_core->V[x] = NN;
             break;
 
         case 0x7:
-            printf("V[x] += NN (0x%.2X += 0x%.2X)", chip8_core->V[x], NN);
+            if (DEBUG) printf("V[x] += NN (0x%.2X += 0x%.2X)", chip8_core->V[x], NN);
             chip8_core->V[x] += NN;
             break;
 
         case 0x8:
             switch (N) {
                 case 0x0:
-                    printf("Set V[x] to V[y] (V[%.1X] = 0x%.2X)", x, chip8_core->V[y]);
+                    if (DEBUG) printf("Set V[x] to V[y] (V[%.1X] = 0x%.2X)", x, chip8_core->V[y]);
                     chip8_core->V[x] = chip8_core->V[y];
                     chip8_core->V[0xF] = 0;
                     break;
                 case 0x1:
-                    printf("Or V[x] with V[y] (V[%.1X] = 0x%.2X | 0x%.2X)", x, chip8_core->V[x],chip8_core->V[y]);
+                    if (DEBUG) printf("Or V[x] with V[y] (V[%.1X] = 0x%.2X | 0x%.2X)", x, chip8_core->V[x],chip8_core->V[y]);
                     chip8_core->V[x] |= chip8_core->V[y];
                     chip8_core->V[0xF] = 0;
                     break;
                 case 0x2:
-                    printf("And V[x] with V[y] (V[%.1X] = 0x%.2X & 0x%.2X)", x, chip8_core->V[x],chip8_core->V[y]);
+                    if (DEBUG) printf("And V[x] with V[y] (V[%.1X] = 0x%.2X & 0x%.2X)", x, chip8_core->V[x],chip8_core->V[y]);
                     chip8_core->V[x] &= chip8_core->V[y];
                     chip8_core->V[0xF] = 0;
                     break;
                 case 0x3:
-                    printf("Xor V[x] with V[y] (V[%.1X] = 0x%.2X ^ 0x%.2X)", x, chip8_core->V[x],chip8_core->V[y]);
+                    if (DEBUG) printf("Xor V[x] with V[y] (V[%.1X] = 0x%.2X ^ 0x%.2X)", x, chip8_core->V[x],chip8_core->V[y]);
                     chip8_core->V[x] ^= chip8_core->V[y];
                     chip8_core->V[0xF] = 0;
                     break;
                 case 0x4:
-                    printf("Add V[x] with V[y] (V[%.1X] = 0x%.2X + 0x%.2X)", x, chip8_core->V[x],chip8_core->V[y]);
+                    if (DEBUG) printf("Add V[x] with V[y] (V[%.1X] = 0x%.2X + 0x%.2X)", x, chip8_core->V[x],chip8_core->V[y]);
                     uint32_t sum = chip8_core->V[x] + chip8_core->V[y];
                     chip8_core->V[x] += chip8_core->V[y];
                     if (sum > 0xFF) {
@@ -202,7 +202,7 @@ void decode_and_execute (chip8_core *chip8_core, bool keypad[16]) {
                     }
                     break;
                 case 0x5:
-                    printf("Subtract V[x] with V[y] (V[%.1X] = 0x%.2X - 0x%.2X)", x, chip8_core->V[x], chip8_core->V[y]);
+                    if (DEBUG) printf("Subtract V[x] with V[y] (V[%.1X] = 0x%.2X - 0x%.2X)", x, chip8_core->V[x], chip8_core->V[y]);
                     bool borrowXY = 0;
                     if (chip8_core->V[x] >= chip8_core->V[y]) {
                         borrowXY = 1;
@@ -214,13 +214,13 @@ void decode_and_execute (chip8_core *chip8_core, bool keypad[16]) {
                     chip8_core->V[0xF] = borrowXY;
                     break;
                 case 0x6:
-                    printf("Set V[x] to V[y] and right shift by 1 (V[%.1X] = 0x%.2X >> 1)", x,chip8_core->V[y]);
+                    if (DEBUG) printf("Set V[x] to V[y] and right shift by 1 (V[%.1X] = 0x%.2X >> 1)", x,chip8_core->V[y]);
                     bool rightShiftedOutBit = chip8_core->V[y] & 0x1;
                     chip8_core->V[x] = chip8_core->V[y] >> 1;
                     chip8_core->V[0xF] = rightShiftedOutBit;
                     break;
                 case 0x7:
-                    printf("Subtract V[y] with V[x] (V[%.1X] = 0x%.2X - 0x%.2X)", x, chip8_core->V[y],chip8_core->V[x]);
+                    if (DEBUG) printf("Subtract V[y] with V[x] (V[%.1X] = 0x%.2X - 0x%.2X)", x, chip8_core->V[y],chip8_core->V[x]);
                     bool borrowYX = 0;
                     if (chip8_core->V[y] >= chip8_core->V[x]) {
                         borrowYX = 1;
@@ -232,42 +232,42 @@ void decode_and_execute (chip8_core *chip8_core, bool keypad[16]) {
                     chip8_core->V[0xF] = borrowYX;
                     break;
                 case 0xE:
-                    printf("Set V[x] to V[y] and left shift by 1 (V[%.1X] = 0x%.2X << 1)", x,chip8_core->V[y]);
+                    if (DEBUG) printf("Set V[x] to V[y] and left shift by 1 (V[%.1X] = 0x%.2X << 1)", x,chip8_core->V[y]);
                     bool leftShiftedOutBit = chip8_core->V[y] >> 7 & 0x1;
                     chip8_core->V[x] = chip8_core->V[y] << 1;
                     chip8_core->V[0xF] = leftShiftedOutBit;
                     break;
                 default:
-                    printf("ERROR: Invalid opcode %d\n", chip8_core->opcode);
+                    if (DEBUG) printf("ERROR: Invalid opcode %d\n", chip8_core->opcode);
                     exit(0);
             }
             break;
 
         case 0x9:
-            printf("Skip if V[x] != V[y] (%.2X != %.2X)", chip8_core->V[x], chip8_core->V[y]);
+            if (DEBUG) printf("Skip if V[x] != V[y] (%.2X != %.2X)", chip8_core->V[x], chip8_core->V[y]);
             if (chip8_core->V[x] != chip8_core->V[y]) {
                 chip8_core->skip = true;
             }
             break;
 
         case 0xA:
-            printf("Set I to 0x%.3X", NNN);
+            if (DEBUG) printf("Set I to 0x%.3X", NNN);
             chip8_core->I = NNN;
             break;
 
         case 0xB:
-            printf("Set PC to NNN + V[0] (0x%.3X + 0x%.2X)", NNN, chip8_core->V[0]);
+            if (DEBUG) printf("Set PC to NNN + V[0] (0x%.3X + 0x%.2X)", NNN, chip8_core->V[0]);
             chip8_core->pc = NNN + chip8_core->V[0];
             chip8_core->increment = false;
             break;
 
         case 0xC:
             chip8_core->V[x] = (rand() % 256) & NN;
-            printf("Set V[x] to random number (0x%.2X)", chip8_core->V[x]);
+            if (DEBUG) printf("Set V[x] to random number (0x%.2X)", chip8_core->V[x]);
             break;
 
         case 0xD:
-            printf("Draw sprite");
+            if (DEBUG) printf("Draw sprite");
             uint8_t xCoord = chip8_core->V[x] % 64;
             uint8_t yCoord = chip8_core->V[y] % 32;
             chip8_core->V[0xF] = 0;
@@ -304,13 +304,13 @@ void decode_and_execute (chip8_core *chip8_core, bool keypad[16]) {
 
         case 0xE:
             if (NN == 0x9E) {
-                printf("Skip if key %.1X is pressed", chip8_core->V[x]);
+                if (DEBUG) printf("Skip if key %.1X is pressed", chip8_core->V[x]);
                 if (keypad[chip8_core->V[x]]) {
                     chip8_core->skip = true;
                 }
             }
             else if (NN == 0xA1) {
-                printf("Skip if key %.1X is not pressed", chip8_core->V[x]);
+                if (DEBUG) printf("Skip if key %.1X is not pressed", chip8_core->V[x]);
                 if (!keypad[chip8_core->V[x]]) {
                     chip8_core->skip = true;
                 }
@@ -319,23 +319,23 @@ void decode_and_execute (chip8_core *chip8_core, bool keypad[16]) {
 
         case 0xF:
             if (NN == 0x07) {
-                printf("Set V[x] to delayTimer (V[%.1X] = 0x%.2X)", x, chip8_core->delayTimer);
+                if (DEBUG) printf("Set V[x] to delayTimer (V[%.1X] = 0x%.2X)", x, chip8_core->delayTimer);
                 chip8_core->V[x] = chip8_core->delayTimer;
             }
             else if (NN == 0x15) {
-                printf("Set delayTimer to V[x] (delayTimer = V[%.1X] = 0x%.2X)", x, chip8_core->V[x]);
+                if (DEBUG) printf("Set delayTimer to V[x] (delayTimer = V[%.1X] = 0x%.2X)", x, chip8_core->V[x]);
                 chip8_core->delayTimer = chip8_core->V[x];
             }
             else if (NN == 0x18) {
-                printf("Set V[x] to soundTimer (V[%.1X] = 0x%.2X)", x, chip8_core->soundTimer);
+                if (DEBUG) printf("Set V[x] to soundTimer (V[%.1X] = 0x%.2X)", x, chip8_core->soundTimer);
                 chip8_core->soundTimer = chip8_core->V[x];
             }
             else if (NN == 0x1E) {
-                printf("Add I with V[x] (I = 0x%.2X + 0x%.2X)", chip8_core->I, chip8_core->V[x]);
+                if (DEBUG) printf("Add I with V[x] (I = 0x%.2X + 0x%.2X)", chip8_core->I, chip8_core->V[x]);
                 chip8_core->I += chip8_core->V[x];
             }
             else if (NN == 0x0A) {
-                printf("Wait for keypress");
+                if (DEBUG) printf("Wait for keypress");
                 bool anyKeyPressed = false;
                 for (int i = 0; i <= 0xF; i++) {
                     anyKeyPressed |= keypad[i];
@@ -347,26 +347,26 @@ void decode_and_execute (chip8_core *chip8_core, bool keypad[16]) {
             }
             else if (NN == 0x29) {
                 uint16_t address = (chip8_core->V[x] * 5) + 0x50;
-                printf("Set I to address of hex character in V[x] (I = 0x%.4X)", address);
+                if (DEBUG) printf("Set I to address of hex character in V[x] (I = 0x%.4X)", address);
                 chip8_core->I = address;
             }
             else if (NN == 0x33) {
                 int digit2 = (chip8_core->V[x] / 100) % 100;
                 int digit1 = (chip8_core->V[x] / 10) % 10;
                 int digit0 = chip8_core->V[x] - digit2*100 - digit1*10;
-                printf("Store 3-digit BCD in V[x] to RAM starting at I (%d, %d %d)", digit2, digit1, digit0);
+                if (DEBUG) printf("Store 3-digit BCD in V[x] to RAM starting at I (%d, %d %d)", digit2, digit1, digit0);
                 chip8_core->RAM[chip8_core->I] = digit2;
                 chip8_core->RAM[chip8_core->I+1] = digit1;
                 chip8_core->RAM[chip8_core->I+2] = digit0;
             }
             else if (NN == 0x55) {
-                printf("Load V[0-x] to RAM[I+x]");
+                if (DEBUG) printf("Load V[0-x] to RAM[I+x]");
                 for (int i = 0; i <= x; i++) {
                     chip8_core->RAM[chip8_core->I+i] = chip8_core->V[i];
                 }
             }
             else if (NN == 0x65) {
-                printf("Load RAM[I+x] to V[0-x]");
+                if (DEBUG) printf("Load RAM[I+x] to V[0-x]");
                 for (int i = 0; i <= x; i++) {
                     chip8_core->V[i] = chip8_core->RAM[chip8_core->I+i];
                 }
@@ -391,7 +391,7 @@ void decode_and_execute (chip8_core *chip8_core, bool keypad[16]) {
         chip8_core->increment = true;
     } 
     update_timers(chip8_core);
-    printf("\n");
+    if (DEBUG) printf("\n");
     return;
 }
 
@@ -415,19 +415,21 @@ void load_rom (chip8_core *chip8_core, char *romPath) {
     fread(buffer, fileLen, 1, file);
     fclose(file);
 
-    printf("STATUS: ROM loaded into RAM.\n");
+    if (DEBUG) printf("STATUS: ROM loaded into RAM.\n");
 
-    printf("\n--ROM HEXDUMP BEGIN--\n");
-    for (int c = 0; c < fileLen; c++) {
-        printf("%.2X", (int)buffer[c]);
-        if (c % 2 == 1) {
-            printf(" ");
+    if (DEBUG) {
+        printf("\n--ROM HEXDUMP BEGIN--\n");
+        for (int c = 0; c < fileLen; c++) {
+            printf("%.2X", (int)buffer[c]);
+            if (c % 2 == 1) {
+                printf(" ");
+            }
+            if (c % 16 == 15) {
+                printf("\n");
+            }
         }
-        if (c % 16 == 15) {
-            printf("\n");
-        }
+        printf("\n--ROM HEXDUMP END--\n\n");
     }
-    printf("\n--ROM HEXDUMP END--\n\n");
 
     memcpy(chip8_core->RAM+0x200, buffer, fileLen);
     free(buffer);
