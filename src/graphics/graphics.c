@@ -5,8 +5,11 @@ void graphics_init (SDL_Renderer *renderer, SDL_Window *window) {
     
     SDL_SetRenderDrawColor(renderer, DISPLAY_OFF_R, DISPLAY_OFF_G, DISPLAY_OFF_B, 255);
     SDL_RenderClear(renderer);
-    
+
     SDL_SetRenderDrawColor(renderer, DISPLAY_ON_R, DISPLAY_ON_G, DISPLAY_ON_B, 255);
+
+    SDL_RenderPresent(renderer);
+    printf("TEST\n");
 
     return;
 }

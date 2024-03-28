@@ -102,7 +102,6 @@ void arg_handler (int argc, char *argv[]) {
 void splash_screen (SDL_Renderer *renderer, const Uint8 *state) {
     chip8_core *chip8_core = malloc(sizeof(struct chip8_core));
     init(chip8_core, singleStepping);
-    // TODO: replace rom with splash screen rom once I make it
     load_rom(chip8_core, "../roms/splash_screen/splash_screen.ch8");
 
     while (!startKeyPressed) {
