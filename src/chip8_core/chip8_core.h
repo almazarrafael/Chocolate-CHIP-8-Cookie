@@ -22,9 +22,10 @@ typedef struct chip8_core {
     bool skip;
     bool displayUpdated;
     uint32_t elapsedCycles;
+    bool debug;
 } chip8_core;
 
-void init(chip8_core *chip8_core);
+void init(chip8_core *chip8_core, bool debug);
 
 void fetch (chip8_core *chip8_core);
 
