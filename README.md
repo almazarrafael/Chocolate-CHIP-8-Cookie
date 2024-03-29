@@ -10,3 +10,23 @@
 
 # Chocolate Chip 8 Cookie
 A CHIP-8 emulator built in C with SDL.
+
+## Dependencies
+- GCC
+- SDL2
+- Make
+- Compatible CHIP8 ROM
+
+## Build
+```
+cd src
+make
+```
+
+## Run
+```
+./cc8c [Path to ROM] (Optional flag for debugging '-d')
+```
+Further instructions will be printed out once the emulator is run or you may also view ./src/instructions.txt as well.
+
+## Media
