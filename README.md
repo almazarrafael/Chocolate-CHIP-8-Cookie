@@ -11,9 +11,9 @@
 # Chocolate Chip 8 Cookie
 A CHIP-8 emulator built in C with SDL.
 
-| Splash Screen |
-|:--------:|
-|![splash_screen](./media/splash_screen.png)|
+| Splash Screen | Breakout Screenshot |
+|:--------:|:-----------------:|
+|![splash_screen](./media/splash_screen.png)|![breakout](./media/breakout.png)|
 
 | Console Output | Debug Output |
 |:--------:|:-----------------:|
