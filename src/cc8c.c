@@ -18,6 +18,7 @@ int main (int argc, char *argv[]) {
 
     signal(SIGINT, int_handler);
 
+    // SDL init
     SDL_Renderer *renderer;
     SDL_Window *window;
     SDL_CreateWindowAndRenderer(64 * UPSCALE_MULTIPLIER, 32 * UPSCALE_MULTIPLIER, 0, &window, &renderer);
@@ -28,6 +29,7 @@ int main (int argc, char *argv[]) {
 
     if (!singleStepping) splash_screen(renderer, state);
     
+    // Chip8 core init
     chip8_core *chip8_core = malloc(sizeof(struct chip8_core));
     init(chip8_core, singleStepping);
     load_rom(chip8_core, argv[1]);
