@@ -2,11 +2,29 @@
 #include "chip8_core/chip8_core.h"
 #include "graphics/graphics.h"
 
+/*
+Handles the 'ctrl+c' interrupt for exiting the program.
+*/
 void int_handler (int sig);
+
+/*
+Parses through the arguments provided and handles them accordingly.
+*/
 void arg_handler (int argc, char *argv[]);
+
+/*
+Loads the CHIP8 core with the splash screen ROM and halts until any key is pressed.
+*/
 void splash_screen (SDL_Renderer *renderer, const Uint8 *state);
+
+/*
+Prints the contents of instructions.txt.
+*/
 void print_instructions (void);
 
+/*
+Emulator state variables.
+*/
 bool keepRunning = true;
 bool keypad[16] = {0};
 bool prevKeyPState = false;
@@ -25,10 +43,8 @@ int main (int argc, char *argv[]) {
     SDL_Renderer *renderer;
     SDL_Window *window;
     SDL_CreateWindowAndRenderer(64 * UPSCALE_MULTIPLIER, 32 * UPSCALE_MULTIPLIER, 0, &window, &renderer);
-    
-    const Uint8 *state = SDL_GetKeyboardState(NULL);
-
     graphics_init(renderer, window);
+    const Uint8 *state = SDL_GetKeyboardState(NULL);  
 
     if (!singleStepping) splash_screen(renderer, state);
     
