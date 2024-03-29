@@ -5,6 +5,7 @@
 void int_handler (int sig);
 void arg_handler (int argc, char *argv[]);
 void splash_screen (SDL_Renderer *renderer, const Uint8 *state);
+void print_instructions (void);
 
 bool keepRunning = true;
 bool keypad[16] = {0};
@@ -13,6 +14,8 @@ bool singleStepping = false;
 bool startKeyPressed = false;
 
 int main (int argc, char *argv[]) {
+
+    print_instructions();
 
     arg_handler(argc, argv);
 
@@ -34,7 +37,7 @@ int main (int argc, char *argv[]) {
     init(chip8_core, singleStepping);
     load_rom(chip8_core, argv[1]);
 
-    if (singleStepping) printf("STATUS: Single stepping debug mode. Press 'P' to step through.\n");
+    if (singleStepping) printf("STATUS: Single stepping debug mode. Press 'p' to step through.\n");
 
     while (keepRunning) {
 
@@ -126,5 +129,33 @@ void splash_screen (SDL_Renderer *renderer, const Uint8 *state) {
         graphics_update(renderer);
     }
     free(chip8_core);
+    return;
+}
+
+void print_instructions (void) {
+    FILE *file;
+    uint8_t *buffer;
+    unsigned long fileLen;
+
+    file = fopen("./instructions.txt", "rb");
+
+    if (!file) {
+        printf("ERROR: can't read file. The instructions file must have been deleted. Try resetting the repo.\n");
+        exit(0);
+    }
+
+    fseek(file, 0, SEEK_END);
+    fileLen = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    buffer = (uint8_t *)malloc(fileLen+1);
+    fread(buffer, fileLen, 1, file);
+    fclose(file);
+
+    for (int c = 0; c < fileLen; c++) {
+        printf("%c", (char)buffer[c]);
+    }
+
+    free(buffer);
     return;
 }
