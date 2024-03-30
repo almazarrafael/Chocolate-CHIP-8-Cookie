@@ -15,7 +15,7 @@ typedef struct chip8_core {
     uint8_t stackPtr;
     uint8_t delayTimer;
     uint8_t soundTimer;
-    bool display[64][32];
+    bool display[2][64][32];
     bool increment;
     bool skip;
     bool displayUpdated;
@@ -48,9 +48,11 @@ void init(chip8_core *chip8_core, bool debug) {
     chip8_core->delayTimer = 0;
     chip8_core->soundTimer = 0;
 
-    for (int i = 0; i < 64; i++) {
-        for (int j = 0; j < 32; j++) {
-            chip8_core->display[i][j] = false;
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 64; j++) {
+            for (int k = 0; k < 32; k++) {
+                chip8_core->display[i][j][k] = false;
+            }
         }
     }
 
@@ -279,18 +281,24 @@ void decode_and_execute (chip8_core *chip8_core, bool keypad[16]) {
             uint8_t currRow;
             bool currBit;
 
+            for (int i = 0; i < 64; i++) {
+                for (int j = 0; j < 32; j++) {
+                    chip8_core->display[0][i][j] = chip8_core->display[1][i][j];
+                }
+            }
+
             for (int i = 0; i < N; i++) {
                 currRow = chip8_core->RAM[chip8_core->I + i];
                 xCoord = chip8_core->V[x] % 64;
                 for (int j = 0; j < 8; j++) {
                     currBit = (currRow >> 7-j) & 0x1;
                     // TODO: this is xor
-                    if (currBit && chip8_core->display[xCoord][yCoord]) {
-                        chip8_core->display[xCoord][yCoord] = 0;
+                    if (currBit && chip8_core->display[1][xCoord][yCoord]) {
+                        chip8_core->display[1][xCoord][yCoord] = 0;
                         chip8_core->V[0xF] = 1;
                     }
-                    else if (currBit && !chip8_core->display[xCoord][yCoord]) {
-                        chip8_core->display[xCoord][yCoord] = 1;
+                    else if (currBit && !chip8_core->display[1][xCoord][yCoord]) {
+                        chip8_core->display[1][xCoord][yCoord] = 1;
                     }
                     
                     if (xCoord == 63) {

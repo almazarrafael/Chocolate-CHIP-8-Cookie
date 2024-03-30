@@ -17,7 +17,7 @@ typedef struct chip8_core {
     uint8_t stackPtr;
     uint8_t delayTimer;
     uint8_t soundTimer;
-    bool display[64][32];
+    bool display[2][64][32];
     bool increment;
     bool skip;
     bool displayUpdated;

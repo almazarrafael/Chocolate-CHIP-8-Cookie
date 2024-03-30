@@ -18,11 +18,11 @@ void graphics_update (SDL_Renderer *renderer) {
     return;
 }
 
-void graphics_draw (SDL_Renderer *renderer, bool display[64][32]) {
+void graphics_draw (SDL_Renderer *renderer, bool display[2][64][32]) {
 
     for (int i = 0; i < 64 * UPSCALE_MULTIPLIER; i++) {
         for (int j = 0; j < 32 * UPSCALE_MULTIPLIER; j++) {
-            if (display[i/UPSCALE_MULTIPLIER][j/UPSCALE_MULTIPLIER]) {
+            if (display[0][i/UPSCALE_MULTIPLIER][j/UPSCALE_MULTIPLIER] | display[1][i/UPSCALE_MULTIPLIER][j/UPSCALE_MULTIPLIER]) {
                 SDL_RenderDrawPoint(renderer, i, j);
             }
             else {

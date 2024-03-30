@@ -16,7 +16,7 @@ void graphics_update (SDL_Renderer *renderer);
 /*
 Updates and renders the drawing based on the current state of the display array.
 */
-void graphics_draw (SDL_Renderer *renderer, bool display[64][32]);
+void graphics_draw (SDL_Renderer *renderer, bool display[2][64][32]);
 
 /*
 Frees graphics for clean up on program exit.
