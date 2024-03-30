@@ -48,13 +48,7 @@ void init(chip8_core *chip8_core, bool debug) {
     chip8_core->delayTimer = 0;
     chip8_core->soundTimer = 0;
 
-    for (int i = 0; i < 2; i++) {
-        for (int j = 0; j < 64; j++) {
-            for (int k = 0; k < 32; k++) {
-                chip8_core->display[i][j][k] = false;
-            }
-        }
-    }
+    memset(chip8_core->display, 0, sizeof(chip8_core->display));
 
     chip8_core->increment = true;
     chip8_core->skip = false;
@@ -281,11 +275,7 @@ void decode_and_execute (chip8_core *chip8_core, bool keypad[16]) {
             uint8_t currRow;
             bool currBit;
 
-            for (int i = 0; i < 64; i++) {
-                for (int j = 0; j < 32; j++) {
-                    chip8_core->display[0][i][j] = chip8_core->display[1][i][j];
-                }
-            }
+            memcpy(&chip8_core->display[0], &chip8_core->display[1], sizeof(chip8_core->display[0]));
 
             for (int i = 0; i < N; i++) {
                 currRow = chip8_core->RAM[chip8_core->I + i];
@@ -373,15 +363,11 @@ void decode_and_execute (chip8_core *chip8_core, bool keypad[16]) {
             }
             else if (NN == 0x55) {
                 if (chip8_core->debug) printf("Load V[0-x] to RAM[I+x]");
-                for (int i = 0; i <= x; i++) {
-                    chip8_core->RAM[chip8_core->I+i] = chip8_core->V[i];
-                }
+                memcpy(&chip8_core->RAM[chip8_core->I], &chip8_core->V[0], (x + 1) * sizeof(chip8_core->RAM[0]));
             }
             else if (NN == 0x65) {
                 if (chip8_core->debug) printf("Load RAM[I+x] to V[0-x]");
-                for (int i = 0; i <= x; i++) {
-                    chip8_core->V[i] = chip8_core->RAM[chip8_core->I+i];
-                }
+                memcpy(&chip8_core->V[0], &chip8_core->RAM[chip8_core->I], (x + 1) * sizeof(chip8_core->V[0]));
             }
             break;
 
